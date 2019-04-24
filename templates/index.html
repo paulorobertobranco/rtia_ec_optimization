@@ -24,77 +24,77 @@
 
 				<div class="card mb-4 shadow-sm">
 					<div class="card-header">
-						<h4 class="my-0 font-weight-normal">Input ** data</h4>
+						<h4 class="my-0 font-weight-normal">Input data</h4>
 					</div>
 					<div class="card-body">
-						<form class="form mt-3 mb-4" action="/get_pharmacies" method="POST">
+
+						<form class="form mt-2 mb-4">
 
 							<div class="form-group">
-								<label for="neighborhood">Neighborhood:</label>
-								<input type="text" class="form-control" id="neighborhood" name="neighborhood" required>
+								<label for="latitude">Latitude:</label>
+								<input type="text" class="form-control" id="latitude" name="latitude" value="{{lat}}" required>
 							</div>
 
+							<div class="form-group">
+								<label for="longitude">Longitude:</label>
+								<input type="text" class="form-control" id="longitude" name="longitude" value="{{lng}}" required>
+							</div>
 
 							<div class="form-group">
 								<label for="radius">Radius:</label>
-								<input type="number" class="form-control" id="radius" name="radius" min="1" max="10" value="1" required>
+								<input type="number" class="form-control" id="radius" name="radius" min="1" value="5" required>
 							</div>
 							
 							<hr/>
 							
-							<button type="submit" class="btn btn-primary">Submit</button>
+							<button id="submit" type="button" class="btn btn-link">Submit</button>
 
 						</form>
+
 					</div>
 				</div>
 
 				<div class="card mb-4 shadow-sm">
 					<div class="card-header">
-						<h4 class="my-0 font-weight-normal">Pro</h4>
+						<h4 class="my-0 font-weight-normal">Map</h4>
 					</div>
 					<div class="card-body">
-						<h1 class="card-title pricing-card-title">$15 <small class="text-muted">/ mo</small></h1>
-						<ul class="list-unstyled mt-3 mb-4">
-							<li>20 users included</li>
-							<li>10 GB of storage</li>
-							<li>Priority email support</li>
-							<li>Help center access</li>
-						</ul>
-						<button type="button" class="btn btn-lg btn-block btn-primary">Get started</button>
+						<iframe id="map" data="{{api_key}}" width="500" height="450" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?q={{lat}},+{{lng}}&key={{api_key}}" allowfullscreen></iframe>
+					</div>
+
+				</div>
+
+			</div>
+			
+			<div id="result" style="display: none;" class="card-deck mb-2 text-center">
+
+				<div class="card mb-4 shadow-sm">
+					<div class="card-header">
+						<h4 class="my-0 font-weight-normal">Result</h4>
+					</div>
+					<div class="card-body">
+						<div id="myDiv"></div>
 					</div>
 				</div>
 
 				<div class="card mb-4 shadow-sm">
 					<div class="card-header">
-						<h4 class="my-0 font-weight-normal">Enterprise</h4>
+						<h4 class="my-0 font-weight-normal">Result</h4>
 					</div>
 					<div class="card-body">
-						<h1 class="card-title pricing-card-title">$29 <small class="text-muted">/ mo</small></h1>
-						<ul class="list-unstyled mt-3 mb-4">
-							<li>30 users included</li>
-							<li>15 GB of storage</li>
-							<li>Phone and email support</li>
-							<li>Help center access</li>
-						</ul>
-						<button type="button" class="btn btn-lg btn-block btn-primary">Contact us</button>
+						<iframe id="map" data="{{api_key}}" width="500" height="450" frameborder="0" style="border:0" src="" allowfullscreen></iframe>
 					</div>
 				</div>
 			</div>
-	      	
-			
 
-			{% if neighborhood %}
-				{{neighborhood}}
-			{% endif %}
-
-			<footer class="pt-4 my-md-5 pt-md-5 border-top">
-					
-			</footer>
+			<footer class="pt-4 my-md-5 pt-md-5 border-top">	</footer>
 
 		</div>
 		
 		<script src="/static/lib/jquery/jquery-3.4.0.min.js"></script>
         <script src="/static/lib/bootstrap/js/bootstrap.min.js"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script src="/static/js/index.js"></script>
 
 	</body>
 </html>
