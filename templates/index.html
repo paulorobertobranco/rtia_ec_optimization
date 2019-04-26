@@ -14,84 +14,206 @@
 	<body>
 
 		<div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+			<img src="/static/images/medicine.png" width="10%">
 			<h1 class="app-title display-4">{{app_name}}</h1>
-			<p class="lead"></p>
+			<p class="lead">Evolutionary computing solution</p>
 		</div>
 
-		<div class="container">
+		<hr/>
 
-			<div class="card-deck mb-3 text-center">
+		<div class="container-fluid">
 
-				<div class="card mb-4 shadow-sm">
-					<div class="card-header">
-						<h4 class="my-0 font-weight-normal">Input data</h4>
+			<div id="input" class="row">
+
+				<div class="col-sm-6">
+
+
+					<div class="card mb-4 shadow-sm">
+						<div class="card-header">
+							<h4 class="my-0 font-weight-normal">- Input data</h4>
+						</div>
+						<div class="card-body">
+
+							<form>
+								<div class="row">
+									
+									<div class="col">
+										<div class="form-group">
+											<label for="latitude">Latitude:</label>
+											<input type="text" class="form-control" id="latitude" name="latitude" value="{{lat}}" required>
+										</div>
+									</div>
+									
+									<div class="col">
+										<div class="form-group">
+											<label for="longitude">Longitude:</label>
+											<input type="text" class="form-control" id="longitude" name="longitude" value="{{lng}}" required>
+										</div>
+									</div>
+
+									<div class="col">
+										<div class="form-group">
+											<label for="radius">Radius:</label>
+											<input type="number" class="form-control" id="radius" name="radius" min="1" value="1000" required>
+										</div>
+									</div>
+
+
+								</div>
+
+								<hr/>
+								
+								<div class="row">
+									
+									<div class="col">
+										<div class="form-group">
+											<label for="population">Population:</label>
+											<input type="number" class="form-control" id="population" name="population" min="1" value="100" required>
+										</div>
+									</div>
+
+									<div class="col">
+										<div class="form-group">
+											<label for="generation">Generations:</label>
+											<input type="number" class="form-control" id="generation" name="generation" min="1" value="100" required>
+										</div>
+									</div>
+
+									<div class="col">
+
+										<div class="form-group">
+											<label for="hof">Best Solutions:</label>
+											<input type="number" class="form-control" id="hof" name="hof" min="1" max="5" value="1" required>
+										</div>
+
+									</div>
+
+								</div>
+
+								<hr/>
+
+								<div class="row">
+									
+									<div class="col">
+										<div class="form-group">
+											<label for="cxprob">Crossover Prob.:</label>
+											<input type="number" class="form-control" id="cxprob" name="cxprob" min="0" max="1" value="0.5" step="0.01" required>		
+										</div>
+									</div>
+
+									<div class="col">
+										<div class="form-group">
+											<label for="mutprob">Mutation Prob.:</label>
+											<input type="number" class="form-control" id="mutprob" name="mutprob" min="0" max="1" value="0.5" step="0.01" required>		
+										</div>
+									</div>
+
+								</div>
+								
+								<hr/>
+								
+								<button id="submit" type="button" class="btn btn-link">Submit</button>
+
+							</form>
+
+						</div>
 					</div>
-					<div class="card-body">
 
-						<form class="form mt-2 mb-4">
-
-							<div class="form-group">
-								<label for="latitude">Latitude:</label>
-								<input type="text" class="form-control" id="latitude" name="latitude" value="{{lat}}" required>
-							</div>
-
-							<div class="form-group">
-								<label for="longitude">Longitude:</label>
-								<input type="text" class="form-control" id="longitude" name="longitude" value="{{lng}}" required>
-							</div>
-
-							<div class="form-group">
-								<label for="radius">Radius:</label>
-								<input type="number" class="form-control" id="radius" name="radius" min="1" value="5" required>
-							</div>
-							
-							<hr/>
-							
-							<button id="submit" type="button" class="btn btn-link">Submit</button>
-
-						</form>
-
-					</div>
 				</div>
+				<div class="col-sm-6">
 
-				<div class="card mb-4 shadow-sm">
-					<div class="card-header">
-						<h4 class="my-0 font-weight-normal">Map</h4>
-					</div>
-					<div class="card-body">
-						<iframe id="map" data="{{api_key}}" width="500" height="450" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?q={{lat}},+{{lng}}&key={{api_key}}" allowfullscreen></iframe>
-					</div>
+					<div class="card mb-4 shadow-sm">
+						<div class="card-header">
+							<h4 class="my-0 font-weight-normal">- Map</h4>
+						</div>
+						<div class="card-body">
+							<iframe id="map" data="{{api_key}}" width="100%" height="424" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?q={{lat}},+{{lng}}&key={{api_key}}" allowfullscreen></iframe>
+						</div>
 
+					</div>
 				</div>
 
 			</div>
+
+			<div id="loader" style="display: none;"></div>
+
+			<div id="result" style="display: none;">
+				
+				<p ><a id="back"><- back </a></p>
 			
-			<div id="result" style="display: none;" class="card-deck mb-2 text-center">
+				<div class="row">
 
-				<div class="card mb-4 shadow-sm">
-					<div class="card-header">
-						<h4 class="my-0 font-weight-normal">Result</h4>
+					<div class="col-sm-6">
+
+						<div class="card mb-4 shadow-sm">
+							<div class="card-header">
+								<h4 class="my-0 font-weight-normal">- Eval Plot</h4>
+							</div>
+							<div class="card-body">
+								<div id="eval-plot"></div>
+							</div>
+						</div>
+
 					</div>
-					<div class="card-body">
-						<div id="myDiv"></div>
+
+					<div class="col-sm-6">
+
+						<div class="card mb-4 shadow-sm">
+							<div class="card-header">
+								<h4 class="my-0 font-weight-normal">- Avg Plot</h4>
+							</div>
+							<div class="card-body">
+								<div id="avg-plot"></div>
+							</div>
+						</div>
+
 					</div>
+
 				</div>
 
-				<div class="card mb-4 shadow-sm">
-					<div class="card-header">
-						<h4 class="my-0 font-weight-normal">Result</h4>
+				<div class="row">
+
+					<div class="col-sm-6">
+
+						<div class="card mb-4 shadow-sm">
+							<div class="card-header">
+								<h4 class="my-0 font-weight-normal">- Initial Population Map</h4>
+							</div>
+							<div class="card-body">
+								<div id="init-map-plot"></div>
+							</div>
+						</div>
+
 					</div>
-					<div class="card-body">
-						<iframe id="map" data="{{api_key}}" width="500" height="450" frameborder="0" style="border:0" src="" allowfullscreen></iframe>
+
+					<div class="col-sm-6">
+
+						<div class="card mb-4 shadow-sm">
+							<div class="card-header">
+								<h4 class="my-0 font-weight-normal">- Best Spot Map</h4>
+							</div>
+							<div class="card-body">
+								<div id="map-plot"></div>
+							</div>
+						</div>
 					</div>
+
 				</div>
+
 			</div>
 
-			<footer class="pt-4 my-md-5 pt-md-5 border-top">	</footer>
+			<!-- <hr/> -->
+
+			<footer id="footer" class="pt-4 my-md-5 pt-md-5 border-top" >
+				<p>Paulo Branco.</p>
+				<p>RTIA.</p>
+				<p>Recife, 2019.</p>
+			</footer>
 
 		</div>
 		
 		<script src="/static/lib/jquery/jquery-3.4.0.min.js"></script>
+        <script src="/static/lib/popper/popper.min.js"></script>
         <script src="/static/lib/bootstrap/js/bootstrap.min.js"></script>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <script src="/static/js/index.js"></script>

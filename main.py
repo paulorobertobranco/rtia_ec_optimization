@@ -13,7 +13,7 @@ api_key = util.get_api_key()
 
 @app.route("/")
 def index():
-	return render_template('index.html', app_name="- PHARMACY -", api_key=api_key, lat=40.677810, lng=-73.943432)
+	return render_template('index.html', app_name="- PHARMACY -", api_key=api_key, lat=-8.066427, lng=-34.985096)
 
 
 @app.route('/get_pharmacies', methods = ['POST'])
@@ -23,20 +23,39 @@ def get_pharmacies():
 	
 		lat = float(request.form['latitude'])
 		lng = float(request.form['longitude'])
-	
+		radius = int(request.form['radius'])
+		population = int(request.form['population'])
+		generation = int(request.form['generation'])
+		best = int(request.form['hof'])
+
 		location = (lat, lng)
 
-		radius = int(request.form['radius'])
-		(hof, lats, longs) = ec_model.run(location, radius, test=True)
+		try:
 
-		response = {
-			'hof': list(hof[0]),
-			'lats': lats,
-			'longs': longs
-		}
+			(pop, log, hof, data) = ec_model.run(location, radius, pop=population, n_hof=best, n_gen=generation, test=False)
+
+			response = {
+				'status': "ok",
+				'center_spot': location,
+				'best_spot_lats': list(map(lambda x: x[0], hof)),
+				'best_spot_longs': list(map(lambda x: x[1], hof)),
+				'lats': list(map(lambda x: x.latitude, data)),
+				'longs': list(map(lambda x: x.longitude, data)),
+				'pop_lats': list(map(lambda x: x[0], pop)),
+				'pop_longs': list(map(lambda x: x[1], pop)),
+				'names': list(map(lambda x: x.name, data)),
+				'gens': list(map(lambda x: x['gen'],log)),
+				'nevals': list(map(lambda x: x['nevals'],log)),
+				'avg': list(map(lambda x: x['avg'],log))
+			}
+
+		except Exception as e:	
+
+			response = {
+				'status': str(e)
+			}
 
 		return json.dumps(response), 200
-		#return render_template('index.html', app_name="- PHARMACY -", api_key=api_key, hof=hof[0], lat=lat, lng=lng), 200
 
 
 if __name__ == "__main__":
