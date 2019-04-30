@@ -1,7 +1,7 @@
 ## Evolutionary Computing Optimization
 Project developed as final evaluation of 'Optimization and decision making using AI' course.
 Multiobjective problem that aims to maximaze the minimal distance of pharmacies and minimize the minimal distance of hospitals given a geographic coverage.
-NSGA-II was chosen as EC algorithm, usig the folowing characteristics:
+NSGA-II was chosen as EC algorithm, using the folowing characteristics:
   - Chromosome: [float, float]
   - Evaluation: Haversine formula
   - Crossover: Simulated binary crossover that modify in-place the input individuals
