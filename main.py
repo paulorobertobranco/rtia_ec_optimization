@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 
-from flask import Flask, render_template, request
-import googlemaps
-import util
 import sys
-import ec_model
+import util
 import json
+import ec_model
+import googlemaps
 import numpy as np
+from flask import Flask, render_template, request
 
-app = Flask(__name__)
-gm_key = util.get_google_api_key()
-
+APP = Flask(__name__)
+GM_KEY = util.get_google_api_key()
 
 @app.route("/")
 def index():
-	return render_template('index.html', app_name="- PHARMACY -", gm_key=gm_key, lat=-23.543196, lng=-46.632432)
+	return render_template('index.html', app_name="- PHARMACY -", gm_key=GM_KEY, lat=-23.543196, lng=-46.632432)
 
 
 @app.route('/get_pharmacies', methods = ['POST'])
@@ -65,7 +64,6 @@ def get_pharmacies():
 
 		return json.dumps(response), 200
 
-
 if __name__ == "__main__":
-	app.run(debug=True)
+	APP.run(debug=True)
 	

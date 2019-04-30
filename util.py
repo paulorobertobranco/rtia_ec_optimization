@@ -55,6 +55,7 @@ def get_mapbox_api_key():
 		k = f.readline()
 	return k
 
+
 def get_test_data():
 	
 	response = test_data.pharm['results']
@@ -64,6 +65,7 @@ def get_test_data():
 	hosp = list(map(lambda x: Data(x), response))	
 	
 	return pharm, hosp
+
 
 def get_data(location, radius, query="pharmacy"):
 	gmaps = googlemaps.Client(key=get_google_api_key())
@@ -75,6 +77,7 @@ def get_data(location, radius, query="pharmacy"):
 		data = None
 
 	return data
+
 
 def haversine(origin, destination):
 	lat1, lon1 = origin
@@ -89,14 +92,13 @@ def haversine(origin, destination):
 
 	return d
 
+
 def get_bounds(latitude, longitude, meters):
 
 	earth = 6378.137
 	m = (1 / ((2 * math.pi / 360) * earth)) / 1000
     
 	return latitude - (meters * m), latitude + (meters * m), longitude - (meters * m) / math.cos(latitude * (math.pi / 180)), longitude + (meters * m) / math.cos(latitude * (math.pi / 180)) 
-
-
 
 
 def get_lat_with_meter(latitude, radius):
@@ -109,6 +111,7 @@ def get_lat_with_meter(latitude, radius):
 		return latitude + (meters * m)
 	else:
 		return latitude - (meters * m)
+
 
 def get_lng_with_meter(latitude, longitude, radius):
 

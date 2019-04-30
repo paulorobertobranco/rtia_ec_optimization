@@ -6,6 +6,7 @@ from deap import tools
 from deap import creator
 from deap import algorithms
 
+
 def eval(pharmacies, hospitals, individual):
     
 	d_pharm = np.min(list(map(lambda x : util.haversine(individual, (x.latitude, x.longitude)), pharmacies)))
@@ -16,6 +17,7 @@ def eval(pharmacies, hospitals, individual):
 		d_hosp = 0
     
 	return d_pharm, d_hosp
+
 
 def checkBounds(min_lat, max_lat, min_long, max_long):
     def decorator(func):
@@ -34,8 +36,8 @@ def checkBounds(min_lat, max_lat, min_long, max_long):
         return wrapper
     return decorator
 
-def run(location, radius, population=100, n_gen=100, test=False, cxpb=0.5, mtpb=0.5):
 
+def run(location, radius, population=100, n_gen=100, test=False, cxpb=0.5, mtpb=0.5):
 
 	if test:
 		(pharmacies, hospitals) = util.get_test_data()
@@ -71,7 +73,6 @@ def run(location, radius, population=100, n_gen=100, test=False, cxpb=0.5, mtpb=
 
 	stats = tools.Statistics(lambda ind: ind.fitness.values)
 
-	
 	stats.register("min", np.min, axis=0)
 	stats.register("max", np.max, axis=0)
 	stats.register("avg", np.mean, axis=0)
@@ -89,11 +90,8 @@ def run(location, radius, population=100, n_gen=100, test=False, cxpb=0.5, mtpb=
 	for ind, fit in zip(invalid_ind, fitnesses):
 		ind.fitness.values = fit
 
-	# This is just to assign the crowding distance to the individuals
-    # no actual selection is done
 	pop = toolbox.select(pop, len(pop))
 	pareto.update(pop)
-
 
 	record = stats.compile(pop)
 	logbook.record(gen=0, evals=len(invalid_ind), **record)
@@ -111,13 +109,11 @@ def run(location, radius, population=100, n_gen=100, test=False, cxpb=0.5, mtpb=
 				
 			del ind1.fitness.values, ind2.fitness.values
         
-		# Evaluate the individuals with an invalid fitness
 		invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
 		fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
 		for ind, fit in zip(invalid_ind, fitnesses):
 			ind.fitness.values = fit
 
-		# Select the next generation population
 		pop = toolbox.select(pop + offspring, population)
 		pareto.update(pop)
 
