@@ -42,6 +42,10 @@ $(document).ready(function(){
 
             if(r['status'] == 'ok'){
 
+                Plotly.setPlotConfig({
+                    mapboxAccessToken: r['mb_key']
+                })
+
                 var pharm = {
                     lat: r['pharm_lats'],
                     lon: r['pharm_longs'],
@@ -97,10 +101,6 @@ $(document).ready(function(){
                     },
                 }
 
-                Plotly.setPlotConfig({
-                    mapboxAccessToken: 'pk.eyJ1IjoicGF1bG9icmFuY28iLCJhIjoiY2p1d21xd3YyMGUwNTRkc2tkNmxoMWZyNiJ9.SlJK610dPRl8h52h5TVTZg'
-                })
-
                 Plotly.newPlot('init-map-plot', data, layout);
 
                 // ############################################################################# \\
@@ -134,10 +134,6 @@ $(document).ready(function(){
                     zoom:12
                     },
                 }
-
-                Plotly.setPlotConfig({
-                    mapboxAccessToken: 'pk.eyJ1IjoicGF1bG9icmFuY28iLCJhIjoiY2p1d21xd3YyMGUwNTRkc2tkNmxoMWZyNiJ9.SlJK610dPRl8h52h5TVTZg'
-                })
 
                 Plotly.newPlot('map-plot', data, layout);
 

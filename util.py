@@ -50,6 +50,11 @@ def get_google_api_key():
 	return k
 
 
+def get_mapbox_api_key():
+	with open('../mapbox_api_key.txt', 'r') as f:
+		k = f.readline()
+	return k
+
 def get_test_data():
 	
 	response = test_data.pharm['results']

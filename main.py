@@ -9,11 +9,12 @@ import json
 import numpy as np
 
 app = Flask(__name__)
-api_key = util.get_google_api_key()
+gm_key = util.get_google_api_key()
+
 
 @app.route("/")
 def index():
-	return render_template('index.html', app_name="- PHARMACY -", api_key=api_key, lat=-23.543196, lng=-46.632432)
+	return render_template('index.html', app_name="- PHARMACY -", gm_key=gm_key, lat=-23.543196, lng=-46.632432)
 
 
 @app.route('/get_pharmacies', methods = ['POST'])
@@ -31,35 +32,36 @@ def get_pharmacies():
 
 		location = (lat, lng)
 
-		# try:
+		try:
 
-		(init_pop, log, pareto, pharmacies, hospitals) = ec_model.run(location, radius, population=population, n_gen=generation, cxpb=cxprob, mtpb=mtprob, test=True)
+			(init_pop, log, pareto, pharmacies, hospitals) = ec_model.run(location, radius, population=population, n_gen=generation, cxpb=cxprob, mtpb=mtprob, test=False)
 
-		response = {
-			'status': "ok",
-			'center_spot': location,
-			'best_spot_lats': list(map(lambda x: x[0], pareto[0:5])),
-			'best_spot_longs': list(map(lambda x: x[1], pareto[0:5])),
-			'pharm_lats': list(map(lambda x: x.latitude, pharmacies)),
-			'pharm_longs': list(map(lambda x: x.longitude, pharmacies)),
-			'pharm_names': list(map(lambda x: x.name, pharmacies)),
-			'hosp_lats': list(map(lambda x: x.latitude, hospitals)),
-			'hosp_longs': list(map(lambda x: x.longitude, hospitals)),
-			'hosp_names': list(map(lambda x: x.name, hospitals)),
-			'init_pop_lats': list(map(lambda x: x[0], init_pop)),
-			'init_pop_longs': list(map(lambda x: x[1], init_pop)),
-			'gens': list(map(lambda x: x['gen'],log)),
-			'std_pharm': list(map(lambda x: x['std'][0],log)),
-			'std_hosp': list(map(lambda x: x['std'][1],log)),
-			'avg_pharm': list(map(lambda x: x['avg'][0],log)),
-			'avg_hosp': list(map(lambda x: x['avg'][1],log))
-		}
+			response = {
+				'status': "ok",
+				'mb_key': util.get_mapbox_api_key(),
+				'center_spot': location,
+				'best_spot_lats': list(map(lambda x: x[0], pareto[0:5])),
+				'best_spot_longs': list(map(lambda x: x[1], pareto[0:5])),
+				'pharm_lats': list(map(lambda x: x.latitude, pharmacies)),
+				'pharm_longs': list(map(lambda x: x.longitude, pharmacies)),
+				'pharm_names': list(map(lambda x: x.name, pharmacies)),
+				'hosp_lats': list(map(lambda x: x.latitude, hospitals)),
+				'hosp_longs': list(map(lambda x: x.longitude, hospitals)),
+				'hosp_names': list(map(lambda x: x.name, hospitals)),
+				'init_pop_lats': list(map(lambda x: x[0], init_pop)),
+				'init_pop_longs': list(map(lambda x: x[1], init_pop)),
+				'gens': list(map(lambda x: x['gen'],log)),
+				'std_pharm': list(map(lambda x: x['std'][0],log)),
+				'std_hosp': list(map(lambda x: x['std'][1],log)),
+				'avg_pharm': list(map(lambda x: x['avg'][0],log)),
+				'avg_hosp': list(map(lambda x: x['avg'][1],log))
+			}
 
-		# except Exception as e:	
+		except Exception as e:	
 
-		# 	response = {
-		# 		'status': str(e)
-		# 	}
+			response = {
+				'status': str(e)
+			}
 
 		return json.dumps(response), 200
 

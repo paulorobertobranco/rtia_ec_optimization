@@ -5,7 +5,6 @@ from deap import base
 from deap import tools
 from deap import creator
 from deap import algorithms
-from deap.benchmarks.tools import diversity, convergence, hypervolume
 
 def eval(pharmacies, hospitals, individual):
     
@@ -52,8 +51,8 @@ def run(location, radius, population=100, n_gen=100, test=False, cxpb=0.5, mtpb=
 
 	(min_lat, max_lat, min_long, max_long) = util.get_bounds(lat, lng, radius)
 
-	creator.create("FitnessMax", base.Fitness, weights=(1.0,-1.0))
-	creator.create("Individual", list, fitness=creator.FitnessMax)
+	creator.create("FitnessMulti", base.Fitness, weights=(1.0,-1.0))
+	creator.create("Individual", list, fitness=creator.FitnessMulti)
 
 	toolbox = base.Toolbox()
 	attr_loc = [lambda:util.get_lat_with_meter(lat, radius), lambda:util.get_lng_with_meter(lat, lng, radius)]
@@ -63,14 +62,12 @@ def run(location, radius, population=100, n_gen=100, test=False, cxpb=0.5, mtpb=
 	toolbox.register("evaluate", eval, pharmacies, hospitals)
 	
 	toolbox.register("mate", tools.cxSimulatedBinary, eta=20.0)
-	toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=0.0001, indpb=0.05)
+	toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=0.0001, indpb=mtpb)
 
 	toolbox.decorate("mate", checkBounds(min_lat, max_lat, min_long, max_long))
 	toolbox.decorate("mutate", checkBounds(min_lat, max_lat, min_long, max_long))
 
-
 	toolbox.register("select", tools.selNSGA2)
-
 
 	stats = tools.Statistics(lambda ind: ind.fitness.values)
 
@@ -109,9 +106,8 @@ def run(location, radius, population=100, n_gen=100, test=False, cxpb=0.5, mtpb=
 			if random.random() <= cxpb:
 				toolbox.mate(ind1, ind2)
 
-			if random.random() <= mtpb:
-				toolbox.mutate(ind1)
-				toolbox.mutate(ind2)
+			toolbox.mutate(ind1)
+			toolbox.mutate(ind2)
 				
 			del ind1.fitness.values, ind2.fitness.values
         
@@ -127,8 +123,6 @@ def run(location, radius, population=100, n_gen=100, test=False, cxpb=0.5, mtpb=
 
 		record = stats.compile(pop)
 		logbook.record(gen=gen, evals=len(invalid_ind), **record)
-
-	print("Final population hypervolume is %f" % hypervolume(pop))
 
 	if len(pareto.items) > 4:
 		pareto_ind = pareto.items
