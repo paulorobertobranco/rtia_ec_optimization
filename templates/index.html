@@ -82,30 +82,19 @@
 									<div class="col">
 
 										<div class="form-group">
-											<label for="hof">Best Solutions:</label>
-											<input type="number" class="form-control" id="hof" name="hof" min="1" max="5" value="1" required>
-										</div>
-
-									</div>
-
-								</div>
-
-								<hr/>
-
-								<div class="row">
-									
-									<div class="col">
-										<div class="form-group">
-											<label for="cxprob">Crossover Prob.:</label>
+											<label for="cxprob">Cx. Prob.:</label>
 											<input type="number" class="form-control" id="cxprob" name="cxprob" min="0" max="1" value="0.5" step="0.01" required>		
 										</div>
+
 									</div>
 
 									<div class="col">
+
 										<div class="form-group">
-											<label for="mutprob">Mutation Prob.:</label>
-											<input type="number" class="form-control" id="mutprob" name="mutprob" min="0" max="1" value="0.5" step="0.01" required>		
+											<label for="mtprob">Mut. Prob.:</label>
+											<input type="number" class="form-control" id="mtprob" name="mtprob" min="0" max="1" value="0.5" step="0.01" required>		
 										</div>
+
 									</div>
 
 								</div>
@@ -147,10 +136,10 @@
 
 						<div class="card mb-4 shadow-sm">
 							<div class="card-header">
-								<h4 class="my-0 font-weight-normal">- Eval Plot</h4>
+								<h4 class="my-0 font-weight-normal">- AVG Plot</h4>
 							</div>
 							<div class="card-body">
-								<div id="eval-plot"></div>
+								<div id="avg-plot"></div>
 							</div>
 						</div>
 
@@ -160,10 +149,10 @@
 
 						<div class="card mb-4 shadow-sm">
 							<div class="card-header">
-								<h4 class="my-0 font-weight-normal">- Avg Plot</h4>
+								<h4 class="my-0 font-weight-normal">- STD Plot</h4>
 							</div>
 							<div class="card-body">
-								<div id="avg-plot"></div>
+								<div id="std-plot"></div>
 							</div>
 						</div>
 

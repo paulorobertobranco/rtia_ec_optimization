@@ -5,12 +5,18 @@ from deap import base
 from deap import tools
 from deap import creator
 from deap import algorithms
+from deap.benchmarks.tools import diversity, convergence, hypervolume
 
-def eval(data, individual):
+def eval(pharmacies, hospitals, individual):
     
-	distances = list(map(lambda x : util.haversine(individual, (x.latitude, x.longitude)), data))
+	d_pharm = np.min(list(map(lambda x : util.haversine(individual, (x.latitude, x.longitude)), pharmacies)))
+	
+	if hospitals:	
+		d_hosp = np.min(list(map(lambda x : util.haversine(individual, (x.latitude, x.longitude)), hospitals)))
+	else:
+		d_hosp = 0
     
-	return np.min(distances),
+	return d_pharm, d_hosp
 
 def checkBounds(min_lat, max_lat, min_long, max_long):
     def decorator(func):
@@ -29,23 +35,24 @@ def checkBounds(min_lat, max_lat, min_long, max_long):
         return wrapper
     return decorator
 
-def run(location, radius, pop=100, n_hof=1, n_gen=100, test=False):
+def run(location, radius, population=100, n_gen=100, test=False, cxpb=0.5, mtpb=0.5):
 
 
 	if test:
-		data = util.get_test_data()
+		(pharmacies, hospitals) = util.get_test_data()
 	else:
-		data = util.get_data(location, radius)
+		pharmacies = util.get_data(location, radius)
+		hospitals = util.get_data(location, radius, query="hospitals")
 
-	if not data:
+	if not pharmacies:
 		raise Exception("No pharmacies were found. You should consider increase the radius.")
 	
-	radius = radius * 2
+	radius = radius
 	(lat, lng) = location
 
 	(min_lat, max_lat, min_long, max_long) = util.get_bounds(lat, lng, radius)
 
-	creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+	creator.create("FitnessMax", base.Fitness, weights=(1.0,-1.0))
 	creator.create("Individual", list, fitness=creator.FitnessMax)
 
 	toolbox = base.Toolbox()
@@ -53,25 +60,78 @@ def run(location, radius, pop=100, n_hof=1, n_gen=100, test=False):
 	toolbox.register("individual", tools.initCycle, creator.Individual, attr_loc, 1)
 	toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
-	toolbox.register("evaluate", eval, data)
-	toolbox.register("mate", tools.cxOnePoint)
+	toolbox.register("evaluate", eval, pharmacies, hospitals)
+	
+	toolbox.register("mate", tools.cxSimulatedBinary, eta=20.0)
 	toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=0.0001, indpb=0.05)
 
 	toolbox.decorate("mate", checkBounds(min_lat, max_lat, min_long, max_long))
 	toolbox.decorate("mutate", checkBounds(min_lat, max_lat, min_long, max_long))
 
-	toolbox.register("select", tools.selTournament, tournsize=3)
 
-	pop = toolbox.population(pop)
-	init_pop = pop.copy()
-	hof = tools.HallOfFame(n_hof)
+	toolbox.register("select", tools.selNSGA2)
+
+
 	stats = tools.Statistics(lambda ind: ind.fitness.values)
 
-	stats.register("avg", np.mean)
-	stats.register("std", np.std)
-	stats.register("min", np.min)
-	stats.register("max", np.max)
+	
+	stats.register("min", np.min, axis=0)
+	stats.register("max", np.max, axis=0)
+	stats.register("avg", np.mean, axis=0)
+	stats.register("std", np.std, axis=0)
 
-	pop, log = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=n_gen, stats=stats, halloffame=hof, verbose=False)
+	logbook = tools.Logbook()
+	logbook.header = "gen", "evals", "max", "min", "avg", "std"
 
-	return init_pop, log, hof, data
+	pop = toolbox.population(population)
+	init_pop = pop.copy()
+	pareto = tools.ParetoFront()
+
+	invalid_ind = [ind for ind in pop if not ind.fitness.valid]
+	fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+	for ind, fit in zip(invalid_ind, fitnesses):
+		ind.fitness.values = fit
+
+	# This is just to assign the crowding distance to the individuals
+    # no actual selection is done
+	pop = toolbox.select(pop, len(pop))
+	pareto.update(pop)
+
+
+	record = stats.compile(pop)
+	logbook.record(gen=0, evals=len(invalid_ind), **record)
+
+	for gen in range(1, n_gen):
+		offspring = tools.selTournamentDCD(pop, len(pop))
+		offspring = [toolbox.clone(ind) for ind in offspring]
+
+		for ind1, ind2 in zip(offspring[::2], offspring[1::2]):
+			if random.random() <= cxpb:
+				toolbox.mate(ind1, ind2)
+
+			if random.random() <= mtpb:
+				toolbox.mutate(ind1)
+				toolbox.mutate(ind2)
+				
+			del ind1.fitness.values, ind2.fitness.values
+        
+		# Evaluate the individuals with an invalid fitness
+		invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+		fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+		for ind, fit in zip(invalid_ind, fitnesses):
+			ind.fitness.values = fit
+
+		# Select the next generation population
+		pop = toolbox.select(pop + offspring, population)
+		pareto.update(pop)
+
+		record = stats.compile(pop)
+		logbook.record(gen=gen, evals=len(invalid_ind), **record)
+
+	print("Final population hypervolume is %f" % hypervolume(pop))
+
+	if len(pareto.items) > 4:
+		pareto_ind = pareto.items
+		pareto = [pareto_ind[0], pareto_ind[round(2/4 * len(pareto_ind))], pareto_ind[round(3/4 * len(pareto_ind))], pareto_ind[-1]]
+	
+	return init_pop, logbook, pareto, pharmacies, hospitals

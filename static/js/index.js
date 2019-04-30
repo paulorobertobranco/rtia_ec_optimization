@@ -31,7 +31,8 @@ $(document).ready(function(){
             "radius": $('#radius').val(),
             "population": $('#population').val(),
             "generation": $('#generation').val(),
-            "hof": $('#hof').val()
+            "cxprob": $('#cxprob').val(),
+            "mtprob": $('#mtprob').val()
 
         };
 
@@ -39,23 +40,29 @@ $(document).ready(function(){
 
             var r = $.parseJSON(response);
 
-            console.log(r['pop_lats']);
-            console.log(r['pop_longs']);
-
             if(r['status'] == 'ok'){
 
-                var locs = {
-                    lat: r['lats'],
-                    lon: r['longs'],
+                var pharm = {
+                    lat: r['pharm_lats'],
+                    lon: r['pharm_longs'],
                     mode: 'markers',
                     name: 'pharmacies nearby',
                     type: 'scattermapbox',
-                    text: r['names']
+                    text: r['pharm_names']
+                };
+
+                var hosp = {
+                    lat: r['hosp_lats'],
+                    lon: r['hosp_longs'],
+                    mode: 'markers',
+                    name: 'hospitals nearby',
+                    type: 'scattermapbox',
+                    text: r['hosp_names']
                 };
 
                 var pop = {
-                    lat: r['pop_lats'],
-                    lon: r['pop_longs'],
+                    lat: r['init_pop_lats'],
+                    lon: r['init_pop_longs'],
                     mode: 'markers',
                     name: 'initial population',
                     type: 'scattermapbox',
@@ -69,7 +76,7 @@ $(document).ready(function(){
                     type: 'scattermapbox'
                 };
 
-                var data = [ pop, locs, center ];
+                var data = [ pop, pharm, hosp, center ];
 
                 var layout = {
                     autosize: false,
@@ -98,14 +105,6 @@ $(document).ready(function(){
 
                 // ############################################################################# \\
 
-                var locs = {
-                    lat: r['lats'],
-                    lon: r['longs'],
-                    mode: 'markers',
-                    name: 'pharmacies nearby',
-                    type: 'scattermapbox',
-                    text: r['names']
-                };
 
                 var best = {
                     lat: r['best_spot_lats'],
@@ -115,15 +114,7 @@ $(document).ready(function(){
                     type: 'scattermapbox'
                 };
 
-                var center = {
-                    lat: [r['center_spot'][0]],
-                    lon: [r['center_spot'][1]],
-                    mode: 'markers',
-                    name: 'input location',
-                    type: 'scattermapbox'
-                };
-
-                var data = [ locs, center, best ];
+                var data = [ pharm, hosp, center, best ];
 
                 var layout = {
                     autosize: false,
@@ -153,11 +144,20 @@ $(document).ready(function(){
                 // ############################################################################# \\
 
 
-                var gens = {
+                var pharm_std = {
                     x: r['gens'],
-                    y: r['nevals'],
-                    mode: 'markers',
-                    type: 'lines+markers',
+                    y: r['std_pharm'],
+                    mode: 'lines',
+                    type: 'lines',
+                    name: 'pharm_dist'
+                };
+
+                var hosp_std = {
+                    x: r['gens'],
+                    y: r['std_hosp'],
+                    mode: 'lines',
+                    type: 'lines',
+                    name: 'hosp_dist'
                 };
 
                 var layout = {
@@ -166,18 +166,27 @@ $(document).ready(function(){
                     height: 500
                 };
 
-                var data = [ gens ];
+                var data = [ pharm_std, hosp_std ];
 
-                Plotly.newPlot('eval-plot', data, layout);
+                Plotly.newPlot('std-plot', data, layout);
 
                 // ############################################################################# \\
 
 
-                var gens = {
+                var pharm_avg = {
                     x: r['gens'],
-                    y: r['avg'],
+                    y: r['avg_pharm'],
                     mode: 'lines',
                     type: 'lines',
+                    name: 'pharm_dist'
+                };
+
+                var hosp_avg = {
+                    x: r['gens'],
+                    y: r['avg_hosp'],
+                    mode: 'lines',
+                    type: 'lines',
+                    name: 'hosp_dist'
                 };
 
                 var layout = {
@@ -186,7 +195,7 @@ $(document).ready(function(){
                     height: 500
                 };
 
-                var data = [ gens ];
+                var data = [ pharm_avg, hosp_avg ];
 
                 Plotly.newPlot('avg-plot', data, layout);
 
